@@ -1,4 +1,37 @@
-# Create rules in the main class:
+# define resource using the Entry class
+
+```java
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+
+public void test() {
+    Entry entry = null;
+    try {
+        entry = SphU.entry("resource-name");
+        // code block as resource
+    } catch (BlockException e){
+        // handle exception
+    } finally {
+        if (entry != null){
+            entry.exit();
+        }
+    }
+}
+```
+
+# define resource using Annotations
+
+```java
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+
+@SentinelResource(value = "resource-name")
+public void test() {
+    // method body
+}
+```
+
+# Create rules in the main class
 
 ```java
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
@@ -10,11 +43,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
-public class SentinelDemo01 {
+public class SentinelDemo {
     public static void main(String[] args) {
         SpringApplication.run(SentinelDemo01.class,args);
-        List<FlowRule> flowRules=new ArrayList<>();
-        FlowRule flowRule=new FlowRule();
+        List<FlowRule> flowRules = new ArrayList<>();
+        FlowRule flowRule = new FlowRule();
         flowRule.setResource("sayHi");
         flowRule.setGrade(1);
         flowRule.setCount(1);
@@ -36,9 +69,9 @@ import java.util.List;
 public class MyDatasource implements InitFunc {
     @Override
     public void init() throws Exception {
-        List<FlowRule> flowRules=new ArrayList<>();
+        List<FlowRule> flowRules = new ArrayList<>();
 
-        FlowRule flowRule=new FlowRule();
+        FlowRule flowRule = new FlowRule();
         flowRule.setResource("sayHi");
         flowRule.setGrade(1);
         flowRule.setCount(1);
@@ -51,7 +84,7 @@ public class MyDatasource implements InitFunc {
 
 # Create rules by using configuration files
 
-Create the configuration file `flowRule.json`:
+Create the configuration file `flowRule.json` in the resources directory:
 ```json
 [
     {
@@ -84,18 +117,15 @@ import java.util.List;
 public class MyDatasource implements InitFunc {
     @Override
     public void init() throws Exception {
-        System.out.println("当前自定义数据源初始化init加载了");
         ClassLoader classLoader = MyDatasource.class.getClassLoader();
         URL resource = classLoader.getResource("flowRules.json");
         String fileName = resource.getFile();
-        ReadableDataSource<String,List<FlowRule>> datasource=
-                new FileRefreshableDataSource<List<FlowRule>>(fileName,
-                        new Converter<String, List<FlowRule>>() {
-                            @Override
-                            public List<FlowRule> convert(String json) {
-                                return JSON.parseArray(json,FlowRule.class);
-                            }
-                        });
+        ReadableDataSource<String,List<FlowRule>> datasource = new FileRefreshableDataSource<List<FlowRule>>(fileName, new Converter<String, List<FlowRule>>() {
+            @Override
+            public List<FlowRule> convert(String json) {
+                return JSON.parseArray(json,FlowRule.class);
+            }
+        });
         FlowRuleManager.register2Property(datasource.getProperty());
     }
 }

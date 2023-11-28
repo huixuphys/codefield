@@ -1,3 +1,5 @@
+## load balancer configurations
+
 ```yaml
 server:
   port: 10000
@@ -21,5 +23,4 @@ spring:
           uri: http://localhost:10001
           predicates:
             - Path=/pathb/**
-
 ```

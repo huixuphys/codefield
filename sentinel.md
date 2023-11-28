@@ -45,7 +45,7 @@ import java.util.List;
 @SpringBootApplication
 public class SentinelDemo {
     public static void main(String[] args) {
-        SpringApplication.run(SentinelDemo01.class,args);
+        SpringApplication.run(SentinelDemo.class, args);
         List<FlowRule> flowRules = new ArrayList<>();
         FlowRule flowRule = new FlowRule();
         flowRule.setResource("sayHi");
@@ -81,6 +81,8 @@ public class MyDatasource implements InitFunc {
     }
 }
 ```
+
+Then create a file under `resources/META-INF/services` named `com.alibaba.csp.sentinel.init.InitFunc` and add the full qualified name of the `MyDatasource` class in this file.
 
 # Create rules by using configuration files
 
